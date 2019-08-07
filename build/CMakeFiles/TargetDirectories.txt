@@ -1,4 +1,0 @@
-/home/igormaurell/Workspace/furgbol/joystick-1/build/CMakeFiles/rebuild_cache.dir
-/home/igormaurell/Workspace/furgbol/joystick-1/build/CMakeFiles/edit_cache.dir
-/home/igormaurell/Workspace/furgbol/joystick-1/build/CMakeFiles/furgbol_joy.dir
-/home/igormaurell/Workspace/furgbol/joystick-1/build/CMakeFiles/joystick.dir
