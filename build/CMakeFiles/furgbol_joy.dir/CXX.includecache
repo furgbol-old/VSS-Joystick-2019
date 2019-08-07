@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/igormaurell/Workspace/furgbol/joystick-1/src/manual_control.cc
+manual_control.h
+/home/igormaurell/Workspace/furgbol/joystick-1/src/manual_control.h
+
