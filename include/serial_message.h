@@ -11,13 +11,14 @@ namespace furgbol {
 namespace joystick {
 
 enum SerialMessageHeaderFlags {
-    ROBOT_ID = 0, VEL_R = 1, VEL_L = 2
+    ROBOT_ID = 0, VEL_R1 = 1, VEL_R2 = 2, VEL_R3 = 3, VEL_R4 = 4, VEL_L1 = 5, VEL_L2 = 6,
+    VEL_L3 = 7, VEL_L4 = 8
 };
 
 class SerialMessage {
     private:
         uint8_t robot_id_;
-        uint8_t vel_[2];
+        uint8_t vel_[8];
 
     public:
         SerialMessage();
@@ -31,7 +32,7 @@ class SerialMessage {
         friend std::ostream &operator <<(std::ostream &, SerialMessage const &);
 
         void setRobotId(uint8_t id);
-        void setVel(uint8_t* vel);
+        void setVel(float right, float left);
 
         uint8_t getRobotId();
         uint8_t *getVel();

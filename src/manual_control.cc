@@ -2,16 +2,14 @@
 
 #include "manual_control.h"
 
-ManualControl::ManualControl(): device_n(-1), running(false), serial(), pivot_scale(32.0) {
+ManualControl::ManualControl(): device_n(-1), running(false), serial(), pivot_y_limit(32.0) {
     axis = vector<short>(2, 0);
-    initKinematicModel();
 }
 
 ManualControl::ManualControl(int _device_n, SerialSender *_serial): device_n(_device_n), running(false), serial(_serial) {
     joystick = new Joystick(_device_n);
 
     axis = vector<short>(2, 0);
-    initKinematicModel();
 }
 
 ManualControl::~ManualControl() {
@@ -39,17 +37,11 @@ void ManualControl::run() {
     }
 
     while(running){
-        if(joystick->sample(&event)){
-            if(event.isButton()){
-                button_send = readEventButton();
-            }
-            else button_send = false;
-
-            if(event.isAxis()){
+        if (joystick->sample(&event)) {
+            if (event.isAxis()) {
                 readEventAxis();
             }
-        }
-        else{
+        } else {
             button_send = false;
         }
 
@@ -61,13 +53,14 @@ void ManualControl::run() {
             left_wheel_velocity = 0.0;
         }
 
-        if(axis_send || button_send){
+        if(axis_send || button_send) {
             cout << "Mensagem: " << endl;
             cout << message << endl;
             calculateWheelsVelocity();
             serial->send(message);
         }
     }
+
     message.clear();
 }
 
@@ -88,22 +81,24 @@ bool ManualControl::verifyVelocityAxis() {
 }
 
 void ManualControl::calculateWheelsVelocity() {
-    if (nJoyY >= 0) {
-  // Forward
-  nMotPremixL = (nJoyX>=0)? 127.0 : (127.0 + nJoyX);
-  nMotPremixR = (nJoyX>=0)? (127.0 - nJoyX) : 127.0;
-} else {
-  // Reverse
-  nMotPremixL = (nJoyX>=0)? (127.0 - nJoyX) : 127.0;
-  nMotPremixR = (nJoyX>=0)? 127.0 : (127.0 + nJoyX);
-}
+    int right_velocity, left_velocity;
 
-nMotPremixL = nMotPremixL * nJoyY/128.0;
-nMotPremixR = nMotPremixR * nJoyY/128.0;
+    if (axis[AXIS_Y] >= 0) {
+        //Forward
+        left_velocity = (axis[AXIS_X] >= 0) ? 127.0 : (127.0 + axis[AXIS_X]);
+        right_velocity = (axis[AXIS_X] >= 0) ? (127.0 - axis[AXIS_X]) : 127.0;
+    } else {
+        //Reverse
+        left_velocity = (axis[AXIS_X] >= 0) ? (127.0 - axis[AXIS_X]) : 127.0;
+        right_velocity = (axis[AXIS_X] >= 0) ? 127.0 : (127.0 + axis[AXIS_X]);
+    }
 
-nPivSpeed = nJoyX;
-fPivScale = (abs(nJoyY)>fPivYLimit)? 0.0 : (1.0 - abs(nJoyY)/fPivYLimit);
+    left_velocity = left_velocity * axis[AXIS_Y] / 128.0;
+    right_velocity = right_velocity * axis[AXIS_Y] / 128.0;
 
-nMotMixL = (1.0-fPivScale)*nMotPremixL + fPivScale*( nPivSpeed);
-nMotMixR = (1.0-fPivScale)*nMotPremixR + fPivScale*(-nPivSpeed);
+    pivot_speed = axis[AXIS_X];
+    pivot_scale = (abs(axis[AXIS_Y]) > pivot_y_limit) ? 0.0 : (1.0 - abs(axis[AXIS_Y])/pivot_y_limit);
+
+    left_wheel_velocity = (1.0 - pivot_scale) * left_velocity + pivot_scale * (pivot_speed);
+    right_wheel_velocity = (1.0 - pivot_scale) * right_velocity + pivot_scale * (-pivot_speed);
 }

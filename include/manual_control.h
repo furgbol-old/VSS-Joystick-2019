@@ -24,8 +24,12 @@ using namespace std;
 using namespace cv;
 using namespace furgbol::joystick;
 
-enum Direction{
+enum Direction {
     CLOCKWISE, COUNTERCLOCKWISE
+};
+
+enum Axis {
+    AXIS_X, AXIS_Y
 };
 
 /*!
@@ -47,6 +51,9 @@ private:
     float right_wheel_velocity; //!<Velocidade da roda direita do robô
     int pivot_speed; //!<Velocidade do pivô
     float pivot_scale; //!<Escala de equilíbrio entre o pivô e o drive
+    float pivot_y_limit; //!<Limite do pivô
+
+    bool active;
 
     SerialMessage message; //!<Mensagem que será envidada
     SerialSender *serial; //!<Ponteiro para a thread de comunicação serial
