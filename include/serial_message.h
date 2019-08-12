@@ -11,8 +11,11 @@ namespace furgbol {
 namespace joystick {
 
 enum SerialMessageHeaderFlags {
-    ROBOT_ID = 0, VEL_R1 = 1, VEL_R2 = 2, VEL_R3 = 3, VEL_R4 = 4, VEL_L1 = 5, VEL_L2 = 6,
-    VEL_L3 = 7, VEL_L4 = 8
+    ROBOT_ID, VEL_RIGHT, VEL_LEFT
+};
+
+enum VelocityVectorFlags {
+    VEL_R, VEL_L
 };
 
 class SerialMessage {

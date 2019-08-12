@@ -2,11 +2,11 @@
 
 #include "manual_control.h"
 
-ManualControl::ManualControl(): device_n(-1), running(false), serial(), pivot_y_limit(32.0) {
+ManualControl::ManualControl(): device_n(-1), running(false), serial(), pivot_y_limit(32.0), factor_(100.0) {
     axis = vector<short>(2, 0);
 }
 
-ManualControl::ManualControl(int _device_n, SerialSender *_serial): device_n(_device_n), running(false), serial(_serial) {
+ManualControl::ManualControl(int _device_n, SerialSender *_serial, float factor) : device_n(_device_n), running(false), serial(_serial), factor_(factor) {
     joystick = new Joystick(_device_n);
 
     axis = vector<short>(2, 0);
@@ -32,11 +32,12 @@ void ManualControl::stop() {
 void ManualControl::run() {
     bool button_send = false;
     bool axis_send = false;
-    if(!joystick->isFound()){
-        cout<<"Falha ao abrir o controle."<<endl;
+
+    if (!joystick->isFound()) {
+        cout << "Falha ao abrir o controle." << endl;
     }
 
-    while(running){
+    while (running) {
         if (joystick->sample(&event)) {
             if (event.isAxis()) {
                 readEventAxis();
@@ -53,7 +54,7 @@ void ManualControl::run() {
             left_wheel_velocity = 0.0;
         }
 
-        if(axis_send || button_send) {
+        if (axis_send && button_send) {
             cout << "Mensagem: " << endl;
             cout << message << endl;
             calculateWheelsVelocity();
@@ -101,4 +102,6 @@ void ManualControl::calculateWheelsVelocity() {
 
     left_wheel_velocity = (1.0 - pivot_scale) * left_velocity + pivot_scale * (pivot_speed);
     right_wheel_velocity = (1.0 - pivot_scale) * right_velocity + pivot_scale * (-pivot_speed);
+
+    message.setVel(right_wheel_velocity * factor_, left_wheel_velocity * factor_);
 }
