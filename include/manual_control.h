@@ -49,6 +49,9 @@ private:
 
     float left_wheel_velocity; //!<Velocidade da roda esquerda do robô
     float right_wheel_velocity; //!<Velocidade da roda direita do robô
+
+    float factor_;
+
     int pivot_speed; //!<Velocidade do pivô
     float pivot_scale; //!<Escala de equilíbrio entre o pivô e o drive
     float pivot_y_limit; //!<Limite do pivô
@@ -80,7 +83,7 @@ private:
 
 public:
     ManualControl();
-    ManualControl(int _device_n, SerialSender *_serial);
+    ManualControl(int _device_n, SerialSender *_serial, float factor);
 
     ~ManualControl();
 
