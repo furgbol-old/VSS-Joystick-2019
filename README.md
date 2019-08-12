@@ -1,2 +1,2 @@
 # joystick
-Moving the F180 robot with xbox joystick.
+Moving the Very Small Size robot with xbox joystick.
