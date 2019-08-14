@@ -11,7 +11,7 @@ SerialMessage::SerialMessage() {
     clear();
 }
 
-SerialMessage::SerialMessage(uint8_t robot_id, uint8_t *vel) {
+SerialMessage::SerialMessage(int8_t robot_id, int8_t *vel) {
     robot_id_ = robot_id;
     vel_[VEL_R] = vel[VEL_R];
     vel_[VEL_L] = vel[VEL_L];
@@ -48,20 +48,20 @@ std::ostream &operator << (std::ostream &stream, furgbol::joystick::SerialMessag
     return stream;
 }
 
-void SerialMessage::setRobotId(uint8_t robot_id) {
+void SerialMessage::setRobotId(int8_t robot_id) {
     robot_id_ = robot_id;
 }
 
-void SerialMessage::setVel(float right, float left) {
-    vel_[VEL_L] = (int)left;
-    vel_[VEL_R] = (int)right;
+void SerialMessage::setVel(int right, int left) {
+    vel_[VEL_L] = (int8_t)left;
+    vel_[VEL_R] = (int8_t)right;
 }
 
-uint8_t SerialMessage::getRobotId() {
+int8_t SerialMessage::getRobotId() {
     return robot_id_;
 }
 
-uint8_t *SerialMessage::getVel() {
+int8_t *SerialMessage::getVel() {
     return vel_;
 }
 

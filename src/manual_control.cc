@@ -2,11 +2,11 @@
 
 #include "manual_control.h"
 
-ManualControl::ManualControl(): device_n(-1), running(false), serial(), pivot_y_limit(32.0), factor_(100.0) {
+ManualControl::ManualControl(): device_n(-1), running(false), serial(), pivot_y_limit(32.0), factor_(100.0), robot_id_(-1) {
     axis = vector<short>(2, 0);
 }
 
-ManualControl::ManualControl(int _device_n, SerialSender *_serial, float factor) : device_n(_device_n), running(false), serial(_serial), factor_(factor) {
+ManualControl::ManualControl(int _device_n, SerialSender *_serial, float factor, int robot_id) : device_n(_device_n), running(false), serial(_serial), factor_(factor), robot_id_(robot_id) {
     joystick = new Joystick(_device_n);
 
     axis = vector<short>(2, 0);
@@ -38,25 +38,19 @@ void ManualControl::run() {
     }
 
     while (running) {
-        if (joystick->sample(&event)) {
-            if (event.isAxis()) {
-                readEventAxis();
-            }
-        } else {
-            button_send = false;
-        }
+        if(joystick->sample(&event)) {
+            if(event.isButton()) button_send = readEventButton();
+            else button_send = false;
+
+            if(event.isAxis()) readEventAxis();
+        } else button_send = false;
 
         axis_send = verifyVelocityAxis();
-
-        if (axis_send) calculateWheelsVelocity();
-        else {
-            right_wheel_velocity = 0.0;
-            left_wheel_velocity = 0.0;
-        }
 
         if (axis_send && button_send) {
             cout << "Mensagem: " << endl;
             cout << message << endl;
+            setId();
             calculateWheelsVelocity();
             serial->send(message);
         }
@@ -67,8 +61,8 @@ void ManualControl::run() {
 
 
 //Setters
-void ManualControl::setId(int _id) {
-    message.setRobotId(_id);
+void ManualControl::setId() {
+    message.setRobotId(robot_id_);
 }
 
 void ManualControl::readEventAxis() {
@@ -76,32 +70,50 @@ void ManualControl::readEventAxis() {
 }
 
 bool ManualControl::verifyVelocityAxis() {
-    for(int i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
         if(abs(axis[i]) >= MIN_AXIS) return true;
+    return false;
+}
+
+bool ManualControl::readEventButton() {
+    if (event.number == 5) return event.value;
     return false;
 }
 
 void ManualControl::calculateWheelsVelocity() {
     int right_velocity, left_velocity;
+    float axis_y, axis_x;
 
-    if (axis[AXIS_Y] >= 0) {
-        //Forward
-        left_velocity = (axis[AXIS_X] >= 0) ? 127.0 : (127.0 + axis[AXIS_X]);
-        right_velocity = (axis[AXIS_X] >= 0) ? (127.0 - axis[AXIS_X]) : 127.0;
+    axis_y = 63.0 * axis[AXIS_Y] / 32767;
+    axis_x = 63.0 * axis[AXIS_X] / 32767;
+
+    if (axis_y >= 0) {
+        if (axis_x >= 0) {
+            left_velocity = 63.0;
+            right_velocity = 63.0 - axis_x;
+        } else {
+            left_velocity = 63.0 + axis_x;
+            right_velocity = 63.0;
+        }
     } else {
-        //Reverse
-        left_velocity = (axis[AXIS_X] >= 0) ? (127.0 - axis[AXIS_X]) : 127.0;
-        right_velocity = (axis[AXIS_X] >= 0) ? 127.0 : (127.0 + axis[AXIS_X]);
+        if (axis_y >= 0) {
+            right_velocity = 63.0;
+            left_velocity = 63.0 - axis_x;
+        } else {
+            right_velocity = 63.0 + axis_x;
+            left_velocity = 63.0;
+        }
     }
 
-    left_velocity = left_velocity * axis[AXIS_Y] / 128.0;
-    right_velocity = right_velocity * axis[AXIS_Y] / 128.0;
+    left_velocity = left_velocity * axis_y / 64.0;
+    right_velocity = right_velocity * axis_y / 64.0;
 
-    pivot_speed = axis[AXIS_X];
-    pivot_scale = (abs(axis[AXIS_Y]) > pivot_y_limit) ? 0.0 : (1.0 - abs(axis[AXIS_Y])/pivot_y_limit);
+    pivot_speed = axis_x;
+    if (abs(axis_y) > pivot_y_limit) pivot_scale = 0.0;
+    else pivot_scale = 1.0 - abs(axis_y) / pivot_y_limit;
 
     left_wheel_velocity = (1.0 - pivot_scale) * left_velocity + pivot_scale * (pivot_speed);
     right_wheel_velocity = (1.0 - pivot_scale) * right_velocity + pivot_scale * (-pivot_speed);
 
-    message.setVel(right_wheel_velocity * factor_, left_wheel_velocity * factor_);
+    message.setVel((int)right_wheel_velocity, (int)left_wheel_velocity);
 }

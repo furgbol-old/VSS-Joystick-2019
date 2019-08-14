@@ -43,6 +43,7 @@ private:
     mutex mu; //!<Mutex para escrita na flag running
 
     int device_n; //!<Número do joystick utilizado pela thread
+    int robot_id_; //!<Número do robô que o joystick vai controlar
     Joystick *joystick; //!<Objeto da classe Joystick para fazer leitura do arquivo em que o joystick escreve seus dados
     JoystickEvent event; //!<Objeto da classe JoystickEvent para verificar se houve algum evento no joystick que deve ser processado
     vector<short> axis; //!<Vetor que guarda o valor dos analógicos do joystick
@@ -65,7 +66,11 @@ private:
      * \brief calculateWheelsVelocity utiliza as matrizes velocity, M e R para calcular a velocity_wheels
      */
     void calculateWheelsVelocity();
-
+    /*!
+     * \brief readEventButton processa um evento que seja disparado por um botão, verificando que tipo de ação se deve tomar
+     * \return booleano indicando se há ou não a necessidade de enviar um dado para o robô
+     */
+    bool readEventButton();
     /*!
      * \brief readEventAxis processa um evento que seja disparado por um analógico, preenchendo o vetor axis
      */
@@ -76,14 +81,14 @@ private:
      */
     bool verifyVelocityAxis();
 
-    /*!
+    /*! 
      * \brief run é o loop principal a thread, passado por parâmetro para td
      */
     void run();
 
 public:
     ManualControl();
-    ManualControl(int _device_n, SerialSender *_serial, float factor);
+    ManualControl(int _device_n, SerialSender *_serial, float factor, int robot_id);
 
     ~ManualControl();
 
@@ -96,7 +101,7 @@ public:
      */
     void stop();
 
-    void setId(int _id);
+    void setId();
 };
 
 #endif // MANUALCONTROL_H

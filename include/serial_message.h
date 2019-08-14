@@ -20,12 +20,12 @@ enum VelocityVectorFlags {
 
 class SerialMessage {
     private:
-        uint8_t robot_id_;
-        uint8_t vel_[8];
+        int8_t robot_id_;
+        int8_t vel_[8];
 
     public:
         SerialMessage();
-        SerialMessage(uint8_t robot_id, uint8_t *vel);
+        SerialMessage(int8_t robot_id, int8_t *vel);
         ~SerialMessage();
 
         void serialize(std::vector<unsigned char> &buffer);
@@ -34,11 +34,11 @@ class SerialMessage {
 
         friend std::ostream &operator <<(std::ostream &, SerialMessage const &);
 
-        void setRobotId(uint8_t id);
-        void setVel(float right, float left);
+        void setRobotId(int8_t id);
+        void setVel(int right, int left);
 
-        uint8_t getRobotId();
-        uint8_t *getVel();
+        int8_t getRobotId();
+        int8_t *getVel();
 };
 
 }  // namespace joystick

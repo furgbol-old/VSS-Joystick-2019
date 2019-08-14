@@ -6,7 +6,7 @@
 int main() {
     furgbol::joystick::SerialSender serial_sender("/dev/ttyUSB0");
 
-    ManualControl joystick(0, &serial_sender, 100.0);
+    ManualControl joystick(0, &serial_sender, 100.0, 1);
 
     joystick.start();
 
