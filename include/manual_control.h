@@ -8,6 +8,7 @@
 #include <thread>
 #include <mutex>
 #include <cstdio>
+#include <math.h>
 
 #include <opencv/cv.h>
 
@@ -16,17 +17,9 @@
 #include "serial_message.h"
 #include "serial_sender.h"
 
-#define MIN_AXIS 10000
-#define MAX_AXIS 32767
-#define KICK_TIMES 10
-
 using namespace std;
 using namespace cv;
 using namespace furgbol::joystick;
-
-enum Direction {
-    CLOCKWISE, COUNTERCLOCKWISE
-};
 
 enum Axis {
     AXIS_X, AXIS_Y
@@ -48,38 +41,17 @@ private:
     JoystickEvent event; //!<Objeto da classe JoystickEvent para verificar se houve algum evento no joystick que deve ser processado
     vector<short> axis; //!<Vetor que guarda o valor dos analógicos do joystick
 
-    float left_wheel_velocity; //!<Velocidade da roda esquerda do robô
-    float right_wheel_velocity; //!<Velocidade da roda direita do robô
-
-    float factor_;
-
-    int pivot_speed; //!<Velocidade do pivô
-    float pivot_scale; //!<Escala de equilíbrio entre o pivô e o drive
-    float pivot_y_limit; //!<Limite do pivô
-
-    bool active;
-
     SerialMessage message; //!<Mensagem que será envidada
     SerialSender *serial; //!<Ponteiro para a thread de comunicação serial
 
     /*!
-     * \brief calculateWheelsVelocity utiliza as matrizes velocity, M e R para calcular a velocity_wheels
+     * \brief calculateWheelsVelocity calcula a velocity_wheels
      */
     void calculateWheelsVelocity();
-    /*!
-     * \brief readEventButton processa um evento que seja disparado por um botão, verificando que tipo de ação se deve tomar
-     * \return booleano indicando se há ou não a necessidade de enviar um dado para o robô
-     */
-    bool readEventButton();
     /*!
      * \brief readEventAxis processa um evento que seja disparado por um analógico, preenchendo o vetor axis
      */
     void readEventAxis();
-    /*!
-     * \brief verifyVelocityAxis verifica se os valores que estão no vetor de axis são suficientes para calcular a velocidade
-     * \return booleano indicando se o dado é ou não relevante
-     */
-    bool verifyVelocityAxis();
 
     /*! 
      * \brief run é o loop principal a thread, passado por parâmetro para td
@@ -88,7 +60,7 @@ private:
 
 public:
     ManualControl();
-    ManualControl(int _device_n, SerialSender *_serial, float factor, int robot_id);
+    ManualControl(int _device_n, SerialSender *_serial, int robot_id);
 
     ~ManualControl();
 
@@ -100,8 +72,6 @@ public:
      * \brief stop trava com o mutex, modificia a flag running para false e da join na thread td
      */
     void stop();
-
-    void setId();
 };
 
 #endif // MANUALCONTROL_H
