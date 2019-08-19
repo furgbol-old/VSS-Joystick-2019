@@ -13,49 +13,49 @@ SerialMessage::SerialMessage() {
 
 SerialMessage::SerialMessage(uint8_t robot_id, uint8_t *vel, uint8_t *dir) {
     robot_id_ = robot_id;
-    vel_[VEL_R] = vel[VEL_R];
-    vel_[VEL_L] = vel[VEL_L];
-    dir_[DIR_R] = dir[DIR_R];
-    dir_[DIR_L] = dir[DIR_L];
+    vel_[LINEAR_VEL] = vel[LINEAR_VEL];
+    vel_[ANGULAR_VEL] = vel[ANGULAR_VEL];
+    dir_[LINEAR_DIR] = dir[LINEAR_DIR];
+    dir_[ANGULAR_DIR] = dir[ANGULAR_DIR];
 }
 
 SerialMessage::~SerialMessage() {}
 
 void SerialMessage::serialize(std::vector<uint8_t> &buffer) {
     buffer[ROBOT_ID] = robot_id_+128;
-    buffer[VEL_RIGHT] = vel_[VEL_R];
-    buffer[VEL_LEFT] = vel_[VEL_L];
-    buffer[DIR_RIGHT] = dir_[DIR_R];
-    buffer[DIR_LEFT] = dir_[DIR_L];
+    buffer[LINEAR_VEL] = vel_[LINEAR];
+    buffer[ANGULAR_VEL] = vel_[ANGULAR];
+    buffer[LINEAR_DIR] = dir_[LINEAR];
+    buffer[ANGULAR_DIR] = dir_[ANGULAR];
 
     std::cout<<"=========================PACOTE====================================\n"<<std::endl;
-    printf("Robot id: %d\n", buffer[ROBOT_ID]);
-    printf("Right velocity: %d\n", buffer[VEL_RIGHT]);
-    printf("Left velocity: %d\n", buffer[VEL_LEFT]);
-    printf("Right direction: %d\n", buffer[DIR_RIGHT]);
-    printf("Left velocity: %d\n", buffer[DIR_LEFT]);
+    printf("Robot id: %u\n", buffer[ROBOT_ID]);
+    printf("Linear velocity: %u\n", buffer[LINEAR_VEL]);
+    printf("Angular velocity: %u\n", buffer[ANGULAR_VEL]);
+    printf("Linear direction: %u\n", buffer[LINEAR_DIR]);
+    printf("Angular direction: %u\n", buffer[ANGULAR_DIR]);
 }
 
 void SerialMessage::clear() {
     robot_id_ = 0;
-    vel_[VEL_R] = 0;
-    vel_[VEL_L] = 0;
-    dir_[DIR_R] = 0;
-    dir_[DIR_L] = 0;
+    vel_[LINEAR] = 0;
+    vel_[ANGULAR] = 0;
+    dir_[LINEAR] = 0;
+    dir_[ANGULAR] = 0;
 }
 
 void SerialMessage::setRobotId(uint8_t robot_id) {
     robot_id_ = robot_id;
 }
 
-void SerialMessage::setVel(int right, int left) {
-    vel_[VEL_L] = (uint8_t)left;
-    vel_[VEL_R] = (uint8_t)right;
+void SerialMessage::setVel(int linear, int angular) {
+    vel_[LINEAR] = (uint8_t)linear;
+    vel_[ANGULAR] = (uint8_t)angular;
 }
 
-void SerialMessage::setDir(uint8_t right, uint8_t left) {
-    dir_[VEL_L] = left;
-    dir_[VEL_R] = right;
+void SerialMessage::setDir(uint8_t linear, uint8_t angular) {
+    dir_[LINEAR] = linear;
+    dir_[ANGULAR] = angular;
 }
 
 uint8_t SerialMessage::getRobotId() {

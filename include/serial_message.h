@@ -11,15 +11,11 @@ namespace furgbol {
 namespace joystick {
 
 enum SerialMessageHeaderFlags {
-    ROBOT_ID, VEL_RIGHT, VEL_LEFT, DIR_RIGHT, DIR_LEFT
+    ROBOT_ID, LINEAR_VEL, ANGULAR_VEL, LINEAR_DIR, ANGULAR_DIR
 };
 
 enum VelocityVectorFlags {
-    VEL_R, VEL_L
-};
-
-enum DirectionsVectorFlags {
-    DIR_R, DIR_L
+    LINEAR, ANGULAR
 };
 
 class SerialMessage {
@@ -40,8 +36,8 @@ class SerialMessage {
         friend std::ostream &operator <<(std::ostream &, SerialMessage const &);
 
         void setRobotId(uint8_t id);
-        void setVel(int right, int left);
-        void setDir(uint8_t right, uint8_t left);
+        void setVel(int linear, int angular);
+        void setDir(uint8_t linear, uint8_t angular);
 
         uint8_t getRobotId();
         uint8_t *getVel();

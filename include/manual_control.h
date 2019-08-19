@@ -44,6 +44,8 @@ private:
     SerialMessage message; //!<Mensagem que será envidada
     SerialSender *serial; //!<Ponteiro para a thread de comunicação serial
 
+    uint8_t max_velocity_;
+
     /*!
      * \brief calculateWheelsVelocity calcula a velocity_wheels
      */
@@ -60,7 +62,7 @@ private:
 
 public:
     ManualControl();
-    ManualControl(int _device_n, SerialSender *_serial, int robot_id);
+    ManualControl(int _device_n, SerialSender *_serial, uint8_t max_velocity, int robot_id);
 
     ~ManualControl();
 
