@@ -28,12 +28,12 @@ void SerialMessage::serialize(std::vector<uint8_t> &buffer) {
     buffer[LINEAR_DIR] = dir_[LINEAR];
     buffer[ANGULAR_DIR] = dir_[ANGULAR];
 
-    std::cout<<"=========================PACOTE====================================\n"<<std::endl;
+    /*std::cout<<"=========================PACOTE====================================\n"<<std::endl;
     printf("Robot id: %u\n", buffer[ROBOT_ID]);
     printf("Linear velocity: %u\n", buffer[LINEAR_VEL]);
     printf("Angular velocity: %u\n", buffer[ANGULAR_VEL]);
     printf("Linear direction: %u\n", buffer[LINEAR_DIR]);
-    printf("Angular direction: %u\n", buffer[ANGULAR_DIR]);
+    printf("Angular direction: %u\n", buffer[ANGULAR_DIR]);*/
 }
 
 void SerialMessage::clear() {
