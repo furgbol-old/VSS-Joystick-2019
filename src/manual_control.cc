@@ -32,16 +32,21 @@ void ManualControl::stop() {
 void ManualControl::run() {
     bool axis_send = false;
     bool activated = false;
+    bool started = false;
 
     if (!joystick->isFound()) {
         cout << "Falha ao abrir o controle." << endl;
     }
 
-    while (running) {
+    do {
         if(joystick->sample(&event)) {
             if(event.isButton()) {
-                if (event.number == 5) activated = true;
-                else activated = false;
+                if (event.number == 5) {
+                    if (started) {
+                        if (!activated) activated = true;
+                        else if (activated) activated = false;
+                    } else started = true;
+                }
             }
             if(event.isAxis()) readEventAxis();
         }
@@ -50,7 +55,7 @@ void ManualControl::run() {
             calculateWheelsVelocity();
             serial->send(message);
         }
-    }
+    } while (running);
 
     message.clear();
 }
@@ -66,11 +71,11 @@ void ManualControl::calculateWheelsVelocity() {
     linear_velocity = (abs(axis[AXIS_Y]) * max_velocity_) / 32767;
     angular_velocity = (abs(axis[AXIS_X]) * max_velocity_) / 32767;
 
-    if (axis[AXIS_Y] < 0) linear_direction = 2;
-    else linear_direction = 0;
+    if (axis[AXIS_Y] < 0) linear_direction = POSITIVE;
+    else linear_direction = NEGATIVE;
 
-    if (axis[AXIS_X] > 0) angular_direction = 2;
-    else angular_direction = 0;
+    if (axis[AXIS_X] > 0) angular_direction = POSITIVE;
+    else angular_direction = NEGATIVE;
 
     message.setRobotId(robot_id_);
     message.setVel((int)linear_velocity, (int)angular_velocity);

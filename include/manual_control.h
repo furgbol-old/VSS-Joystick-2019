@@ -25,6 +25,10 @@ enum Axis {
     AXIS_X, AXIS_Y
 };
 
+enum Direction {
+    NEGATIVE = 1, POSITIVE = 3
+};
+
 /*!
  * \brief A classe ManualControl administra uma thread para fazer leitura do joystick, montagem do pacote serial
  * e adição na lista para envio da thread SerialCommunicator
