@@ -11,71 +11,51 @@ SerialMessage::SerialMessage() {
     clear();
 }
 
-SerialMessage::SerialMessage(uint8_t robot_id, uint8_t *vel) {
+SerialMessage::SerialMessage(uint8_t robot_id, uint8_t *vel, uint8_t *dir) {
     robot_id_ = robot_id;
-    vel_[0] = vel[0];
-    vel_[1] = vel[1];
-    vel_[2] = vel[2];
+    vel_[LINEAR_VEL] = vel[LINEAR_VEL];
+    vel_[ANGULAR_VEL] = vel[ANGULAR_VEL];
+    dir_[LINEAR_DIR] = dir[LINEAR_DIR];
+    dir_[ANGULAR_DIR] = dir[ANGULAR_DIR];
 }
 
 SerialMessage::~SerialMessage() {}
 
-void SerialMessage::serialize(std::vector<unsigned char> &buffer) {
+void SerialMessage::serialize(std::vector<uint8_t> &buffer) {
     buffer[ROBOT_ID] = robot_id_+128;
-    buffer[VEL_X] = vel_[0];
-    buffer[VEL_Y] = vel_[1];
-    buffer[VEL_Y] = vel_[2];
-    buffer[DIRECTION] = 0;
-    buffer[DIRECTION] = dir_[2] << 2 | dir_[1] << 1 | dir_[0];
+    buffer[LINEAR_VEL] = vel_[LINEAR];
+    buffer[ANGULAR_VEL] = vel_[ANGULAR];
+    buffer[LINEAR_DIR] = dir_[LINEAR];
+    buffer[ANGULAR_DIR] = dir_[ANGULAR];
 
-    std::cout<<"=========================PACOTE====================================\n"<<std::endl;
-    printf("%u\n",buffer[0]);
-    printf("%u\n",buffer[1]);
-    printf("%u\n",buffer[2]);
-    printf("%u\n",buffer[3]);
-    printf("%u\n",buffer[4]);
-
+    /*std::cout<<"=========================PACOTE====================================\n"<<std::endl;
+    printf("Robot id: %u\n", buffer[ROBOT_ID]);
+    printf("Linear velocity: %u\n", buffer[LINEAR_VEL]);
+    printf("Angular velocity: %u\n", buffer[ANGULAR_VEL]);
+    printf("Linear direction: %u\n", buffer[LINEAR_DIR]);
+    printf("Angular direction: %u\n", buffer[ANGULAR_DIR]);*/
 }
 
 void SerialMessage::clear() {
     robot_id_ = 0;
-    vel_[0] = 0;
-    vel_[1] = 0;
-    vel_[2] = 0;
-}
-
-std::ostream &operator << (std::ostream &stream, furgbol::joystick::SerialMessage const &message)
-{
-    stream << "TeamProcolMessage{ " << std::endl;
-    stream << "\tid: " << static_cast<int>(message.robot_id_) << std::endl;
-    stream << "\tvelocity: [ ";
-    stream << static_cast<int>(message.vel_[0]) << ", ";
-    stream << static_cast<int>(message.vel_[1]) << ", ";
-    stream << static_cast<int>(message.vel_[2]);
-    stream << "]" << std::endl;
-    stream << "\tdirection: [ ";
-    stream << static_cast<int>(message.dir_[0]) << ", ";
-    stream << static_cast<int>(message.dir_[1]) << ", ";
-    stream << static_cast<int>(message.dir_[2]);
-    stream << "]" << std::endl;
-    stream << "};";
-    return stream;
+    vel_[LINEAR] = 0;
+    vel_[ANGULAR] = 0;
+    dir_[LINEAR] = 0;
+    dir_[ANGULAR] = 0;
 }
 
 void SerialMessage::setRobotId(uint8_t robot_id) {
     robot_id_ = robot_id;
 }
 
-void SerialMessage::setVel(uint8_t* vel) {
-    vel_[0] = vel[0];
-    vel_[1] = vel[1];
-    vel_[2] = vel[2];
+void SerialMessage::setVel(int linear, int angular) {
+    vel_[LINEAR] = (uint8_t)linear;
+    vel_[ANGULAR] = (uint8_t)angular;
 }
 
-void SerialMessage::setDir(uint8_t* dir) {
-    dir_[0] = dir[0];
-    dir_[1] = dir[1];
-    dir_[2] = dir[2];
+void SerialMessage::setDir(uint8_t linear, uint8_t angular) {
+    dir_[LINEAR] = linear;
+    dir_[ANGULAR] = angular;
 }
 
 uint8_t SerialMessage::getRobotId() {

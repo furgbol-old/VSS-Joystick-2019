@@ -11,18 +11,22 @@ namespace furgbol {
 namespace joystick {
 
 enum SerialMessageHeaderFlags {
-    ROBOT_ID = 0, VEL_X = 1, VEL_Y = 2, VEL_THETA = 3, DIRECTION = 5
+    ROBOT_ID, LINEAR_VEL, ANGULAR_VEL, LINEAR_DIR, ANGULAR_DIR
+};
+
+enum VelocityVectorFlags {
+    LINEAR, ANGULAR
 };
 
 class SerialMessage {
     private:
         uint8_t robot_id_;
-        uint8_t vel_[3];
-        uint8_t dir_[3]; 
+        uint8_t vel_[2];
+        uint8_t dir_[2];
 
     public:
         SerialMessage();
-        SerialMessage(uint8_t robot_id, uint8_t *vel);
+        SerialMessage(uint8_t robot_id, uint8_t *vel, uint8_t *dir);
         ~SerialMessage();
 
         void serialize(std::vector<unsigned char> &buffer);
@@ -32,8 +36,8 @@ class SerialMessage {
         friend std::ostream &operator <<(std::ostream &, SerialMessage const &);
 
         void setRobotId(uint8_t id);
-        void setVel(uint8_t* vel);
-        void setDir(uint8_t* dir);
+        void setVel(int linear, int angular);
+        void setDir(uint8_t linear, uint8_t angular);
 
         uint8_t getRobotId();
         uint8_t *getVel();
