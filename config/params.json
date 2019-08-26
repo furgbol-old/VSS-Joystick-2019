@@ -1,0 +1,32 @@
+{
+  "networking": {
+
+    "serial_port": "/dev/ttyUSB0",
+    "baud_rate": 1000
+
+  },
+
+
+  "limiting": {
+
+    "min_axis": 10000,
+    "max_axis": 32767,
+    "max_velocity": 127
+
+  },
+
+
+  "instances": {
+
+    "instance_1": {
+      "device": 0,
+      "robot_id": 1
+    },
+
+    "instance_2": {
+      "device": 1,
+      "robot_id": 2
+    }
+
+  }
+}

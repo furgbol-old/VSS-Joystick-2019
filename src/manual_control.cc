@@ -2,14 +2,25 @@
 
 #include "manual_control.h"
 
-ManualControl::ManualControl(): device_n(-1), running(false), serial(), robot_id_(-1), max_velocity_(127) {
-    axis = vector<short>(2, 0);
+ManualControl::ManualControl(): device_n_(-1), running_(false), serial_(), robot_id_(-1), max_velocity_(-1) {
+    axis_ = vector<short>(2, 0);
 }
 
-ManualControl::ManualControl(int _device_n, SerialSender *_serial, uint8_t max_velocity, int robot_id) : device_n(_device_n), running(false), serial(_serial), robot_id_(robot_id), max_velocity_(max_velocity) {
-    joystick = new Joystick(_device_n);
+ManualControl::ManualControl(int instance, Parameters param, SerialSender *serial) : running_(false), 
+                            serial_(serial), max_velocity_(param.max_velocity), baud_rate_(param.baud_rate),
+                            max_axis_(param.max_axis), min_axis_(param.min_axis) {
+    switch (instance) {
+        case 1:
+            device_n_ = param.device_one;
+            robot_id_ = param.id_robot_one;
+        case 2:
+            device_n_ = param.device_two;
+            robot_id_ = param.id_robot_two;
+    }
 
-    axis = vector<short>(2, 0);
+    joystick_ = new Joystick(device_n_);
+
+    axis_ = vector<short>(2, 0);
 }
 
 ManualControl::~ManualControl() {
@@ -17,16 +28,16 @@ ManualControl::~ManualControl() {
 }
 
 void ManualControl::start() {
-    running = true;
-    td = thread(&ManualControl::run, this);
+    running_ = true;
+    td_ = thread(&ManualControl::run, this);
 }
 
 void ManualControl::stop() {
     {
-        lock_guard<mutex> lock(mu);
-        running = false;
+        lock_guard<mutex> lock(mu_);
+        running_ = false;
     }
-    td.join();
+    td_.join();
 }
 
 void ManualControl::run() {
@@ -36,54 +47,57 @@ void ManualControl::run() {
     
     int control = 0;
 
-    if (!joystick->isFound()) {
+    if (!joystick_->isFound()) {
         cout << "Falha ao abrir o controle." << endl;
     }
 
     do {
-        if(joystick->sample(&event)) {
-            if(event.isButton()) {
-                if (event.number == 5) {
+        if(joystick_->sample(&event_)) {
+            if(event_.isButton()) {
+                if (event_.number == 5 /*5 é o valor do RB*/) {
                     if (started) {
                         if (!activated) activated = true;
                         else if (activated) activated = false;
                     } else started = true;
                 }
             }
-            if(event.isAxis()) readEventAxis();
+            if(event_.isAxis()) readEventAxis();
         }
 
-        if (activated && (axis[AXIS_Y] > 10000 || axis[AXIS_X] > 10000)) {
+        if (abs(axis_[AXIS_X]) < min_axis_) axis_[AXIS_X] = 0;
+        if (abs(axis_[AXIS_Y]) < min_axis_) axis_[AXIS_Y] = 0;
+
+        if (activated && (axis_[AXIS_Y] > 0 || axis_[AXIS_X] > 0)) {
             control++;
-            if (control >= 100) {
+            if (control >= baud_rate_) {
                 calculateWheelsVelocity();
-                serial->send(message);
+                serial_->send(message_);
                 control = 0;
             }
         }
-    } while (running);
+    } while (running_);
 
-    message.clear();
+    message_.clear();
 }
 
 void ManualControl::readEventAxis() {
-    if (event.number < axis.size()) axis[event.number] = event.value;
+    if (event_.number < axis_.size()) axis_[event_.number] = event_.value;
 }
 
 void ManualControl::calculateWheelsVelocity() {
     float linear_velocity, angular_velocity;
     uint8_t linear_direction, angular_direction;
 
-    linear_velocity = (abs(axis[AXIS_Y]) * max_velocity_) / 32767;
-    angular_velocity = (abs(axis[AXIS_X]) * max_velocity_) / 32767;
+    linear_velocity = (abs(axis_[AXIS_Y]) * max_velocity_) / max_axis_;
+    angular_velocity = (abs(axis_[AXIS_X]) * max_velocity_) / max_axis_;
 
-    if (axis[AXIS_Y] < 0) linear_direction = POSITIVE;
+    if (axis_[AXIS_Y] < 0) linear_direction = POSITIVE;
     else linear_direction = NEGATIVE;
 
-    if (axis[AXIS_X] > 0) angular_direction = POSITIVE;
+    if (axis_[AXIS_X] > 0) angular_direction = POSITIVE;
     else angular_direction = NEGATIVE;
 
-    message.setRobotId(robot_id_);
-    message.setVel((int)linear_velocity, (int)angular_velocity);
-    message.setDir(linear_direction, angular_direction);
+    message_.setRobotId(robot_id_);
+    message_.setVel((int)linear_velocity, (int)angular_velocity);
+    message_.setDir(linear_direction, angular_direction);
 }

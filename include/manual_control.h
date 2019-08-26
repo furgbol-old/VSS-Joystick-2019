@@ -16,10 +16,12 @@
 
 #include "serial_message.h"
 #include "serial_sender.h"
+#include "parameters.h"
 
 using namespace std;
 using namespace cv;
 using namespace furgbol::joystick;
+using namespace furgbol::parameters;
 
 enum Axis {
     AXIS_X, AXIS_Y
@@ -35,20 +37,23 @@ enum Direction {
  */
 class ManualControl {
 private:
-    bool running; //!<Flag de controle de execução da Thread
-    thread td; //!<Thread da classe
-    mutex mu; //!<Mutex para escrita na flag running
+    bool running_; //!<Flag de controle de execução da Thread
+    thread td_; //!<Thread da classe
+    mutex mu_; //!<Mutex para escrita na flag running
 
-    int device_n; //!<Número do joystick utilizado pela thread
+    int device_n_; //!<Número do joystick utilizado pela thread
     int robot_id_; //!<Número do robô que o joystick vai controlar
-    Joystick *joystick; //!<Objeto da classe Joystick para fazer leitura do arquivo em que o joystick escreve seus dados
-    JoystickEvent event; //!<Objeto da classe JoystickEvent para verificar se houve algum evento no joystick que deve ser processado
-    vector<short> axis; //!<Vetor que guarda o valor dos analógicos do joystick
+    Joystick *joystick_; //!<Objeto da classe Joystick para fazer leitura do arquivo em que o joystick escreve seus dados
+    JoystickEvent event_; //!<Objeto da classe JoystickEvent para verificar se houve algum evento no joystick que deve ser processado
+    vector<short> axis_; //!<Vetor que guarda o valor dos analógicos do joystick
 
-    SerialMessage message; //!<Mensagem que será envidada
-    SerialSender *serial; //!<Ponteiro para a thread de comunicação serial
+    SerialMessage message_; //!<Mensagem que será envidada
+    SerialSender *serial_; //!<Ponteiro para a thread de comunicação serial
 
-    uint8_t max_velocity_;
+    int max_velocity_;
+    int max_axis_;
+    int baud_rate_;
+    int min_axis_;
 
     /*!
      * \brief calculateWheelsVelocity calcula a velocity_wheels
@@ -66,7 +71,7 @@ private:
 
 public:
     ManualControl();
-    ManualControl(int _device_n, SerialSender *_serial, uint8_t max_velocity, int robot_id);
+    ManualControl(int instance, Parameters param, SerialSender *serial);
 
     ~ManualControl();
 
