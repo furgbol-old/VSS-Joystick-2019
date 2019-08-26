@@ -33,6 +33,8 @@ void ManualControl::run() {
     bool axis_send = false;
     bool activated = false;
     bool started = false;
+    
+    int control = 0;
 
     if (!joystick->isFound()) {
         cout << "Falha ao abrir o controle." << endl;
@@ -52,8 +54,12 @@ void ManualControl::run() {
         }
 
         if (activated && (axis[AXIS_Y] > 10000 || axis[AXIS_X] > 10000)) {
-            calculateWheelsVelocity();
-            serial->send(message);
+            control++;
+            if (control >= 100) {
+                calculateWheelsVelocity();
+                serial->send(message);
+                control = 0;
+            }
         }
     } while (running);
 
