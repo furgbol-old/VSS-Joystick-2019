@@ -9,6 +9,7 @@
 #include <mutex>
 #include <cstdio>
 #include <math.h>
+#include <chrono>
 
 #include <opencv/cv.h>
 
@@ -19,9 +20,9 @@
 #include "parameters.h"
 
 using namespace std;
-using namespace cv;
 using namespace furgbol::joystick;
 using namespace furgbol::parameters;
+using namespace std::chrono;
 
 enum Axis {
     AXIS_X, AXIS_Y
@@ -52,7 +53,7 @@ private:
 
     int max_velocity_;
     int max_axis_;
-    int baud_rate_;
+    duration<float> frequency_;
     int min_axis_;
 
     /*!

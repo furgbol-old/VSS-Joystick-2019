@@ -1,18 +1,15 @@
 {
+
   "networking": {
-
     "serial_port": "/dev/ttyUSB0",
-    "baud_rate": 1000
-
+    "frequency": 30
   },
 
 
   "limiting": {
-
     "min_axis": 10000,
     "max_axis": 32767,
     "max_velocity": 127
-
   },
 
 
@@ -29,4 +26,5 @@
     }
 
   }
+  
 }

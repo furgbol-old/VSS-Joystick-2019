@@ -10,7 +10,8 @@ RF24 radio(CE, CSN); // Define quais serão os pinos do arduino usados para cone
 
 uint8_t dados[5];
 int i;
-//dado={id,velocidade1,velocidade2,velocidade3,velocidade4,power,dribler}
+
+//dado = {id, velocidade linear, velocidade angular, direção linear, direção angular}
 
 const uint64_t pipe[6] = {0xF1F1F1F1E1LL, 0xF0F0F0F0E2LL, 0xF0F0F0F0E3LL, 0xF0F0F0F0E4LL, 0xF0F0F0F0E5LL, 0xF0F0F0F0E6LL};  // Endereços do radio
 uint8_t c;
@@ -28,9 +29,8 @@ void setup() {
 void loop() {
   if(Serial.available()) {
     c = Serial.read();
-    //Serial.println(c, DEC);
+    
     if(c >= 128) {
-      //Serial.println(c, DEC);
       cont = 1;
       dados[0] = c - 128;
     } else if (cont > 0) {
@@ -41,11 +41,18 @@ void loop() {
     if (cont == sizeof(dados)) {
       cont = 0;
 
+      Serial.println("--->TeamProtocolMessage{");
+      Serial.print("Robot ID: ");
       Serial.println(dados[0]);
+      Serial.print("Linear Velocity: ");
       Serial.println(dados[1]);
+      Serial.print("Angular Velocity: ");
       Serial.println(dados[2]);
+      Serial.print("Linear Direction: ");
       Serial.println(dados[3]);
+      Serial.print("Angular Direction: ");
       Serial.println(dados[4]);
+      Serial.println("}");
       
       radio.write(&dados, sizeof(dados));
     }

@@ -14,7 +14,7 @@ namespace parameters {
 
 class Parameters {
     public:
-        int baud_rate;
+        int frequency;
         int min_axis;
         int max_axis;
         int max_velocity;

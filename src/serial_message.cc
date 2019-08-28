@@ -27,13 +27,6 @@ void SerialMessage::serialize(std::vector<uint8_t> &buffer) {
     buffer[ANGULAR_VEL] = vel_[ANGULAR];
     buffer[LINEAR_DIR] = dir_[LINEAR];
     buffer[ANGULAR_DIR] = dir_[ANGULAR];
-
-    /*std::cout<<"=========================PACOTE====================================\n"<<std::endl;
-    printf("Robot id: %u\n", buffer[ROBOT_ID]);
-    printf("Linear velocity: %u\n", buffer[LINEAR_VEL]);
-    printf("Angular velocity: %u\n", buffer[ANGULAR_VEL]);
-    printf("Linear direction: %u\n", buffer[LINEAR_DIR]);
-    printf("Angular direction: %u\n", buffer[ANGULAR_DIR]);*/
 }
 
 void SerialMessage::clear() {
@@ -68,6 +61,17 @@ uint8_t *SerialMessage::getVel() {
 
 uint8_t *SerialMessage::getDir() {
     return dir_;
+}
+
+std::ostream &operator << (std::ostream &stream, furgbol::joystick::SerialMessage const &message) {
+    stream << "--->TeamProcolMessage{ " << std::endl;
+    stream << "\tRobot ID: " << static_cast<int>(message.robot_id_) << std::endl;
+    stream << "\tLinear Velocity: " << static_cast<int>(message.vel_[LINEAR]) << std::endl;
+    stream << "\tAngular Velocity: " << static_cast<int>(message.vel_[ANGULAR]) << std::endl;
+    stream << "\tLinear Direction: " << static_cast<int>(message.dir_[LINEAR]) << std::endl;
+    stream << "\tAngular Direction: " << static_cast<int>(message.dir_[ANGULAR]) << std::endl;
+    stream << "};";
+    return stream;
 }
 
 } // namespace joystick
