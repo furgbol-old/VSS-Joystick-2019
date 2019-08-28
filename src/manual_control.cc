@@ -7,15 +7,17 @@ ManualControl::ManualControl(): device_n_(-1), running_(false), serial_(), robot
 }
 
 ManualControl::ManualControl(int instance, Parameters param, SerialSender *serial) : running_(false), 
-                            serial_(serial), max_velocity_(param.max_velocity), baud_rate_(param.baud_rate),
+                            serial_(serial), max_velocity_(param.max_velocity), frequency_(1.0/param.frequency),
                             max_axis_(param.max_axis), min_axis_(param.min_axis) {
     switch (instance) {
         case 1:
             device_n_ = param.device_one;
             robot_id_ = param.id_robot_one;
+            break;
         case 2:
             device_n_ = param.device_two;
             robot_id_ = param.id_robot_two;
+            break;
     }
 
     joystick_ = new Joystick(device_n_);
@@ -44,12 +46,10 @@ void ManualControl::run() {
     bool axis_send = false;
     bool activated = false;
     bool started = false;
-    
-    int control = 0;
 
-    if (!joystick_->isFound()) {
-        cout << "Falha ao abrir o controle." << endl;
-    }
+    system_clock::time_point compair_time = high_resolution_clock::now();
+
+    if (!joystick_->isFound()) cout << "Falha ao abrir o controle." << endl;
 
     do {
         if(joystick_->sample(&event_)) {
@@ -67,12 +67,12 @@ void ManualControl::run() {
         if (abs(axis_[AXIS_X]) < min_axis_) axis_[AXIS_X] = 0;
         if (abs(axis_[AXIS_Y]) < min_axis_) axis_[AXIS_Y] = 0;
 
-        if (activated && (axis_[AXIS_Y] > 0 || axis_[AXIS_X] > 0)) {
-            control++;
-            if (control >= baud_rate_) {
+        if (activated && (abs(axis_[AXIS_Y]) > min_axis_ || abs(axis_[AXIS_X]) > min_axis_)) {
+            if ((high_resolution_clock::now() - compair_time) >= frequency_) {
                 calculateWheelsVelocity();
+                cout << message_ << endl;
                 serial_->send(message_);
-                control = 0;
+                compair_time = high_resolution_clock::now();
             }
         }
     } while (running_);
